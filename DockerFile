@@ -1,10 +1,9 @@
-# Imagem base com CUDA e ferramentas de desenvolvimento
 FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
-# Instala Python e compiladores necessários para o insightface
+# Instalação de dependências de sistema
 RUN apt-get update && apt-get install -y \
     python3.10 python3.10-dev python3-pip \
     ffmpeg libsm6 libxext6 build-essential \
@@ -12,15 +11,19 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Prepara as ferramentas de build do Python
+# Etapa 1: Preparar compiladores e Numpy (Base)
 RUN pip3 install --upgrade pip setuptools wheel cython
-
-# Instala dependências (Numpy primeiro para evitar conflitos de compilação)
-COPY requirements.txt .
 RUN pip3 install numpy==1.24.3
+
+# Etapa 2: Instalar os "Gigantes" separadamente (evita IO Error no WSL)
+RUN pip3 install torch==2.1.0 torchvision==0.16.0 --index-url https://download.pytorch.org/whl/cu118
+RUN pip3 install tensorflow==2.15.0
+RUN pip3 install onnxruntime-gpu==1.16.3
+
+# Etapa 3: Restante das dependências
+COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-# O código é copiado, mas as pastas photos e models serão sobrescritas por volumes
 COPY . .
 
 EXPOSE 8765
