@@ -1,0 +1,19 @@
+services:
+  deep-cam-server:
+    build: .
+    container_name: deep-cam-server
+    runtime: nvidia # Garante uso da GPU
+    ports:
+      - "8765:8765"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      # A MAGIA ESTÁ AQUI:
+      - ./models:/app/models   # Sincroniza seus modelos
+      - ./photos:/app/photos   # Sincroniza suas fotos de rosto
+    restart: unless-stopped
