@@ -7,7 +7,7 @@ from queue import Queue, Empty, Full
 import websocket
 
 class WebcamClient:
-    def __init__(self, server_url='192.168.1.5:8765'):
+    def __init__(self, server_url='127.0.0.1:8765'):
         self.server_url = server_url
         self.cap = None
         self.raw_queue = Queue(maxsize=2)  # Buffer mínimo para evitar acúmulo
@@ -90,7 +90,7 @@ class WebcamClient:
                                    daemon=True)
         ws_thread.start()
 
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(4)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # Reduz resolução
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         
